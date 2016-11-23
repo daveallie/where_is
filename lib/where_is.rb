@@ -14,6 +14,18 @@ module Where
       end
     end
 
+    def are(klass, method = nil)
+      if method
+        begin
+          Where.are_instance_methods(klass, method)
+        rescue NameError
+          Where.are_methods(klass, method)
+        end
+      else
+        Where.is_class(klass)
+      end
+    end
+
     def is_proc(proc)
       source_location(proc)
     end
