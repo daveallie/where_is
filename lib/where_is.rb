@@ -1,7 +1,7 @@
-require "where_is/version"
+require 'where_is/version'
 
 module Where
-  class <<self
+  class << self
     def is(klass, method = nil)
       if method
         begin
@@ -48,25 +48,29 @@ module Where
 
     def is_class(klass)
       methods = defined_methods(klass)
-      file_groups = methods.group_by{|sl| sl[0]}
-      file_counts = file_groups.map do |file, sls|
-        lines = sls.map{|sl| sl[1]}
+      file_groups = methods.group_by { |src_loc| src_loc[0] }.to_a
+
+      file_groups.map! do |file, src_locs|
+        lines = src_locs.map { |sl| sl[1] }
         count = lines.size
         line = lines.min
-        {file: file, count: count, line: line}
+        { file: file, count: count, line: line }
       end
-      file_counts.sort_by{|fc| fc[:count]}.map{|fc| [fc[:file], fc[:line]]}
+      file_groups.sort_by! { |fc| fc[:count] }
+
+      file_groups.map { |fc| [fc[:file], fc[:line]] }
     end
 
-    # Raises ArgumentError if klass does not have any Ruby methods defined in it.
+    # Raises ArgumentError if klass does not have any
+    # Ruby methods defined in it.
     def is_class_primarily(klass)
       source_locations = is_class(klass)
       if source_locations.empty?
         methods = defined_methods(klass)
-        raise ArgumentError, (methods.empty? ?
-            "#{klass} has no methods" :
-            "#{klass} only has built-in methods (#{methods.size} in total)"
-        )
+
+        raise ArgumentError, "#{klass} has no methods" if methods.empty?
+        raise ArgumentError, "#{klass} only has built-in methods " \
+                             "(#{methods.size} in total)"
       end
       source_locations[0]
     end
@@ -74,10 +78,7 @@ module Where
     private
 
     def source_location(method)
-      method.source_location || (
-      method.to_s =~ /: (.*)>/
-      $1
-      )
+      method.source_location || method.to_s[/: (.*)>/, 1]
     end
 
     def are_via_extractor(extractor, klass, method_name)
@@ -87,8 +88,10 @@ module Where
     end
 
     def defined_methods(klass)
-      methods = klass.methods(false).map{|m| klass.method(m)} +
-          klass.instance_methods(false).map{|m| klass.instance_method(m)}
+      methods = klass.methods(false)
+                     .map { |m| klass.method(m) }
+      methods += klass.instance_methods(false)
+                      .map { |m| klass.instance_method(m) }
       methods.map(&:source_location).compact
     end
   end
