@@ -31,7 +31,7 @@ module Where
     end
 
     def are_instance_methods(klass, method_name)
-      are_via_extractor(:method, klass, method_name)
+      are_via_extractor(:instance_method, klass, method_name)
     end
 
     def is_class(klass)
