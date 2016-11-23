@@ -68,8 +68,8 @@ module Where
       if source_locations.empty?
         methods = defined_methods(klass)
 
-        raise ArgumentError, "#{klass} has no methods" if methods.empty?
-        raise ArgumentError, "#{klass} only has built-in methods " \
+        raise NameError, "#{klass} has no methods" if methods.empty?
+        raise NameError, "#{klass} only has built-in methods " \
                              "(#{methods.size} in total)"
       end
       source_locations[0]
