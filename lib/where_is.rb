@@ -50,19 +50,19 @@ module Where
 
     def is_class(klass)
       methods = defined_methods(klass)
-      group_and_combine_source_locations(methods)
-    end
+      source_locations = group_and_combine_source_locations(methods)
 
-    def is_class_primarily(klass)
-      source_locations = is_class(klass)
       if source_locations.empty?
-        methods = defined_methods(klass)
-
         raise NameError, "#{klass} has no methods" if methods.empty?
         raise NameError, "#{klass} only has built-in methods " \
                              "(#{methods.size} in total)"
       end
-      source_locations[0]
+
+      source_locations
+    end
+
+    def is_class_primarily(klass)
+      is_class(klass)[0]
     end
 
     private
