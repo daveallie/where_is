@@ -31,9 +31,9 @@ module Where
 
       if source_locations.empty?
         raise NameError, "#{klass} has no methods called #{method_name}"
-      else
-        source_locations
       end
+
+      source_locations
     end
 
     def are_instance_methods(klass, method_name)
@@ -41,9 +41,9 @@ module Where
 
       if source_locations.empty?
         raise NameError, "#{klass} has no methods called #{method_name}"
-      else
-        source_locations
       end
+
+      source_locations
     end
 
     def is_class(klass)
@@ -83,7 +83,11 @@ module Where
 
     def are_via_extractor(extractor, klass, method_name)
       klass.ancestors.map do |ancestor|
-        source_location(ancestor.send(extractor, method_name)) rescue nil
+        begin
+          source_location(ancestor.send(extractor, method_name))
+        rescue NameError
+          nil
+        end
       end.compact
     end
 
