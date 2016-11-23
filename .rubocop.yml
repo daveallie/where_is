@@ -1,0 +1,8 @@
+AllCops:
+  DisplayCopNames: true
+
+Style/PredicateName:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
