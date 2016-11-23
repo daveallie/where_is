@@ -27,11 +27,23 @@ module Where
     end
 
     def are_methods(klass, method_name)
-      are_via_extractor(:method, klass, method_name)
+      source_locations = are_via_extractor(:method, klass, method_name)
+
+      if source_locations.empty?
+        raise NameError, "#{klass} has no methods called #{method_name}"
+      else
+        source_locations
+      end
     end
 
     def are_instance_methods(klass, method_name)
-      are_via_extractor(:instance_method, klass, method_name)
+      source_locations = are_via_extractor(:instance_method, klass, method_name)
+
+      if source_locations.empty?
+        raise NameError, "#{klass} has no methods called #{method_name}"
+      else
+        source_locations
+      end
     end
 
     def is_class(klass)
@@ -69,15 +81,9 @@ module Where
     end
 
     def are_via_extractor(extractor, klass, method_name)
-      methods = klass.ancestors.map do |ancestor|
-        method = ancestor.send(extractor, method_name)
-        if method.owner == ancestor
-          source_location(method)
-        else
-          nil
-        end
-      end
-      methods.compact
+      klass.ancestors.map do |ancestor|
+        source_location(ancestor.send(extractor, method_name)) rescue nil
+      end.compact
     end
 
     def defined_methods(klass)
