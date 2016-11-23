@@ -27,7 +27,8 @@ module Where
     end
 
     def are_methods(klass, method_name)
-      source_locations = are_via_extractor(:method, klass, method_name)
+      methods = are_via_extractor(:method, klass, method_name)
+      source_locations = group_and_combine_source_locations(methods)
 
       if source_locations.empty?
         raise NameError, "#{klass} has no methods called #{method_name}"
@@ -37,7 +38,8 @@ module Where
     end
 
     def are_instance_methods(klass, method_name)
-      source_locations = are_via_extractor(:instance_method, klass, method_name)
+      methods = are_via_extractor(:instance_method, klass, method_name)
+      source_locations = group_and_combine_source_locations(methods)
 
       if source_locations.empty?
         raise NameError, "#{klass} has no methods called #{method_name}"
@@ -48,21 +50,9 @@ module Where
 
     def is_class(klass)
       methods = defined_methods(klass)
-      file_groups = methods.group_by { |src_loc| src_loc[0] }.to_a
-
-      file_groups.map! do |file, src_locs|
-        lines = src_locs.map { |sl| sl[1] }
-        count = lines.size
-        line = lines.min
-        { file: file, count: count, line: line }
-      end
-      file_groups.sort_by! { |fc| fc[:count] }
-
-      file_groups.map { |fc| [fc[:file], fc[:line]] }
+      group_and_combine_source_locations(methods)
     end
 
-    # Raises ArgumentError if klass does not have any
-    # Ruby methods defined in it.
     def is_class_primarily(klass)
       source_locations = is_class(klass)
       if source_locations.empty?
@@ -79,6 +69,20 @@ module Where
 
     def source_location(method)
       method.source_location || method.to_s[/: (.*)>/, 1]
+    end
+
+    def group_and_combine_source_locations(source_locations)
+      file_groups = source_locations.group_by { |src_loc| src_loc[0] }.to_a
+
+      file_groups.map! do |file, src_locs|
+        lines = src_locs.map { |sl| sl[1] }
+        count = lines.size
+        line = lines.min
+        { file: file, count: count, line: line }
+      end
+
+      file_groups.sort_by! { |fc| fc[:count] }
+      file_groups.map { |fc| [fc[:file], fc[:line]] }
     end
 
     def are_via_extractor(extractor, klass, method_name)
