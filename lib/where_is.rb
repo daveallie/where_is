@@ -81,31 +81,31 @@ module Where
 
     def source_location(method)
       source_location = method.source_location
-      return method.to_s[/: (.*)>/, 1] if source_location.nil?
+      source_location = [method.to_s[/: (.*)>/, 1]] if source_location.nil?
 
       # source_location is a 2 element array
       # [filename, line_number]
       # some terminals (eg. iterm) will jump to the file if you cmd+click it
       # but they can jump to the specific line if you concat file & line number
       filename, line = source_location
-      { file: filename, line: line, path: "#{filename}:#{line}" }
+      build_location_hash(filename, line)
     end
 
     def group_and_combine_source_locations(source_locations)
-      file_groups = source_locations.group_by { |src_loc| src_loc[0] }.to_a
+      file_groups = source_locations.group_by { |src_loc| src_loc[:file] }.to_a
 
       file_groups.map! do |file, src_locs|
-        lines = src_locs.map { |sl| sl[1] }
+        lines = src_locs.map { |sl| sl[:line] }
         count = lines.size
         line = lines.min
-        { file: file, count: count, line: line }
+        { count: count, data: build_location_hash(file, line) }
       end
 
-      file_groups.sort_by! { |fc| fc[:count] }
-      file_groups.map { |fc| [fc[:file], fc[:line]] }
+      file_groups.sort_by { |fc| fc[:count] }.map { |fc| fc[:data] }
     end
 
     def are_via_extractor(extractor, klass, method_name)
+      klass = klass.class unless [Class, Module].include?(klass.class)
       klass.ancestors.map do |ancestor|
         begin
           source_location(ancestor.send(extractor, method_name))
@@ -116,11 +116,15 @@ module Where
     end
 
     def defined_methods(klass)
-      methods = klass.methods(false)
-                     .map { |m| klass.method(m) }
+      methods = klass.methods(false).map { |m| klass.method(m) }
       methods += klass.instance_methods(false)
                       .map { |m| klass.instance_method(m) }
-      methods.map(&:source_location).compact
+      source_locations = methods.map(&:source_location).compact
+      source_locations.map { |(file, line)| build_location_hash(file, line) }
+    end
+
+    def build_location_hash(file, line)
+      { file: file, line: line, path: "#{file}:#{line}" }
     end
   end
 end
