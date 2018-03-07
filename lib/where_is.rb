@@ -80,7 +80,15 @@ module Where
     private
 
     def source_location(method)
-      method.source_location || method.to_s[/: (.*)>/, 1]
+      source_location = method.source_location
+      return method.to_s[/: (.*)>/, 1] if source_location.nil?
+
+       # source_location is a 2 element array
+       # [filename, line_number]
+       # some terminals (eg. iterm) will jump to the file if you cmd+click it
+       # but they can jump to the specific line if you concat file & line number!
+       filename, line = source_location
+       {file: filename, line: line, path: "#{filename}:#{line}"}
     end
 
     def group_and_combine_source_locations(source_locations)
