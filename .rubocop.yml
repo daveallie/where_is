@@ -1,7 +1,7 @@
 AllCops:
   DisplayCopNames: true
 
-Style/PredicateName:
+Naming/PredicateName:
   Enabled: false
 
 Style/Documentation:
