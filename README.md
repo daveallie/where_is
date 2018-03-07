@@ -24,25 +24,28 @@ Or install it yourself as:
 # Where.is takes a class and an optional method
 
 Where.is(Where, :is)
-# => ["/Users/david/.rvm/gems/ruby-2.3.1/gems/where_is-0.2.0/lib/where_is.rb", 5]
+# => {:file=>"/Users/david/repos/daveallie/where_is/lib/where_is.rb", :line=>5, :path=>"/Users/david/repos/daveallie/where_is/lib/where_is.rb:5"}
 
 Where.is(IRB)
-# => ["/Users/david/.rvm/rubies/ruby-2.3.1/lib/ruby/2.3.0/irb/inspector.rb", 24]
+# => {:file=>"/Users/david/.rvm/rubies/ruby-2.3.1/lib/ruby/2.3.0/irb/inspector.rb", :line=>24, :path=>"/Users/david/.rvm/rubies/ruby-2.3.1/lib/ruby/2.3.0/irb/inspector.rb:24"}
+
+Where.is(String, :empty?) # This method is defined in C
+# => {:file=>"String#empty?", :line=>nil, :path=>"String#empty?:"}
 
 
 # Where.are takes a class and an optional method and will return all definitions
 # of the method/class
 Where.are(Where, :is)
-# => [["/Users/david/.rvm/gems/ruby-2.3.1/gems/where_is-0.2.0/lib/where_is.rb", 5]]
+# => [{:file=>"/Users/david/repos/daveallie/where_is/lib/where_is.rb", :line=>5, :path=>"/Users/david/repos/daveallie/where_is/lib/where_is.rb:5"}]
 
 Where.are(IRB)
 # => [
-#  ["/Users/david/.rvm/rubies/ruby-2.3.1/lib/ruby/2.3.0/irb/inspector.rb", 24],
-#  ["/Users/david/.rvm/rubies/ruby-2.3.1/lib/ruby/2.3.0/irb/workspace.rb", 112],
-#  ["(eval)", 2],
-#  ["/Users/david/.rvm/rubies/ruby-2.3.1/lib/ruby/2.3.0/irb.rb", 350],
-#  ["/Users/david/.rvm/rubies/ruby-2.3.1/lib/ruby/2.3.0/irb/init.rb", 16]
-#]
+#   {:file=>"/Users/david/.rvm/rubies/ruby-2.3.1/lib/ruby/2.3.0/irb/inspector.rb", :line=>24, :path=>"/Users/david/.rvm/rubies/ruby-2.3.1/lib/ruby/2.3.0/irb/inspector.rb:24"},
+#   {:file=>"/Users/david/.rvm/rubies/ruby-2.3.1/lib/ruby/2.3.0/irb/workspace.rb", :line=>112, :path=>"/Users/david/.rvm/rubies/ruby-2.3.1/lib/ruby/2.3.0/irb/workspace.rb:112"},
+#   {:file=>"(eval)", :line=>2, :path=>"(eval):2"},
+#   {:file=>"/Users/david/.rvm/rubies/ruby-2.3.1/lib/ruby/2.3.0/irb.rb", :line=>350, :path=>"/Users/david/.rvm/rubies/ruby-2.3.1/lib/ruby/2.3.0/irb.rb:350"},
+#   {:file=>"/Users/david/.rvm/rubies/ruby-2.3.1/lib/ruby/2.3.0/irb/init.rb", :line=>16, :path=>"/Users/david/.rvm/rubies/ruby-2.3.1/lib/ruby/2.3.0/irb/init.rb:16"}
+# ]
 
 
 Where.is(String, :unknown_method)
