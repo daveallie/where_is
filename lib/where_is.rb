@@ -3,15 +3,7 @@ require 'where_is/version'
 module Where
   class << self
     def is(klass, method = nil)
-      if method
-        begin
-          Where.is_instance_method(klass, method)
-        rescue NameError
-          Where.is_method(klass, method)
-        end
-      else
-        Where.is_class_primarily(klass)
-      end
+      are(klass, method)[0]
     end
 
     def are(klass, method = nil)
@@ -31,47 +23,32 @@ module Where
     end
 
     def is_method(klass, method_name)
-      source_location(klass.method(method_name))
-    rescue NameError
-      raise NameError, "#{klass} has no methods called #{method_name}"
+      are_methods(klass, method_name)[0]
     end
 
     def is_instance_method(klass, method_name)
-      source_location(klass.instance_method(method_name))
-    rescue NameError
-      raise NameError, "#{klass} has no methods called #{method_name}"
+      are_instance_methods(klass, method_name)[0]
     end
 
     def are_methods(klass, method_name)
-      methods = are_via_extractor(:method, klass, method_name)
+      ensured_class = ensure_class(klass)
+      methods = are_via_extractor(:method, ensured_class, method_name)
       source_locations = group_and_combine_source_locations(methods)
 
       if source_locations.empty?
-        raise NameError, "#{klass} has no methods called #{method_name}"
+        raise NameError, "#{ensured_class} has no methods called #{method_name}"
       end
 
       source_locations
     end
 
     def are_instance_methods(klass, method_name)
-      methods = are_via_extractor(:instance_method, klass, method_name)
+      ensured_class = ensure_class(klass)
+      methods = are_via_extractor(:instance_method, ensured_class, method_name)
       source_locations = group_and_combine_source_locations(methods)
 
       if source_locations.empty?
-        raise NameError, "#{klass} has no methods called #{method_name}"
-      end
-
-      source_locations
-    end
-
-    def is_class(klass)
-      methods = defined_methods(klass)
-      source_locations = group_and_combine_source_locations(methods)
-
-      if source_locations.empty?
-        raise NameError, "#{klass} has no methods" if methods.empty?
-        raise NameError, "#{klass} only has built-in methods " \
-                             "(#{methods.size} in total)"
+        raise NameError, "#{ensured_class} has no methods called #{method_name}"
       end
 
       source_locations
@@ -81,7 +58,25 @@ module Where
       is_class(klass)[0]
     end
 
+    def is_class(klass)
+      ensured_class = ensure_class(klass)
+      methods = defined_methods(ensured_class)
+      source_locations = group_and_combine_source_locations(methods)
+
+      if source_locations.empty?
+        raise NameError, "#{ensured_class} has no methods" if methods.empty?
+        raise NameError, "#{ensured_class} only has built-in methods " \
+                             "(#{methods.size} in total)"
+      end
+
+      source_locations
+    end
+
     private
+
+    def ensure_class(klass)
+      [Class, Module].include?(klass.class) ? klass : klass.class
+    end
 
     def source_location(method)
       source_location = method.source_location
@@ -109,7 +104,6 @@ module Where
     end
 
     def are_via_extractor(extractor, klass, method_name)
-      klass = klass.class unless [Class, Module].include?(klass.class)
       klass.ancestors.map do |ancestor|
         begin
           source_location(ancestor.send(extractor, method_name))
