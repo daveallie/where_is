@@ -1,6 +1,10 @@
 AllCops:
   DisplayCopNames: true
 
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+
 Naming/PredicateName:
   Enabled: false
 
