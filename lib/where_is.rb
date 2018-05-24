@@ -128,7 +128,7 @@ module Where
     end
 
     def build_location_hash(file, line)
-      { file: file, line: line, path: "#{file}:#{line}" }
+      { file: file, line: line, path: [file, line].compact.join(':') }
     end
   end
 end
