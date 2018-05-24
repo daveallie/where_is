@@ -15,9 +15,8 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://github.com/daveallie/where_is'
   spec.license       = 'MIT'
 
-  spec.files         = `git ls-files -z`.split("\x0").reject do |f|
-    f.match(%r{^(test|spec|features)/})
-  end
+  spec.files         = Dir['lib/**/*'] + %w[CODE_OF_CONDUCT.md LICENSE.txt
+                                            README.md Gemfile where_is.gemspec]
   spec.bindir        = 'exe'
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
