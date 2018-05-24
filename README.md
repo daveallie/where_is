@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/daveallie/where_is.svg?branch=master)](https://travis-ci.org/daveallie/where_is)
+
 # Where Is
 
 Gem based on https://gist.github.com/wtaysom/1236979.
