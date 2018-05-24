@@ -32,10 +32,14 @@ module Where
 
     def is_method(klass, method_name)
       source_location(klass.method(method_name))
+    rescue NameError
+      raise NameError, "#{klass} has no methods called #{method_name}"
     end
 
     def is_instance_method(klass, method_name)
       source_location(klass.instance_method(method_name))
+    rescue NameError
+      raise NameError, "#{klass} has no methods called #{method_name}"
     end
 
     def are_methods(klass, method_name)
