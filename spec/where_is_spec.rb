@@ -27,6 +27,62 @@ describe Where do
     end
   end
 
+  shared_examples 'singleton specs' do |s|
+    context 'with singleton class' do
+      let(:singleton_subject) { eval(s) } # rubocop:disable Security/Eval
+      let(:file_contents) { [file1] }
+
+      describe '.is' do
+        it 'resolves the first method' do
+          if singleton_subject
+            expect(Where.is(singleton_subject, :first_method))
+              .to eq(file1_def1_res)
+          end
+        end
+
+        it 'resolves the class' do
+          expect(Where.is(singleton_subject)).to eq(file1_def1_res)
+        end
+      end
+
+      around(:example) do |example|
+        named_content = file_contents.each_with_index.map do |content, i|
+          { content: content, name: "source-#{i}-" }
+        end
+
+        with_required_temp_files(named_content) do |file_paths|
+          @file_paths = file_paths
+          example.run
+        end
+
+        if defined?(MySingletonClass)
+          Object.send(:remove_const, :MySingletonClass)
+        end
+      end
+
+      let(:file1) do
+        <<-RUBY
+          require 'singleton'
+
+          Where.ignore = /singleton/
+
+          class MySingletonClass
+            include Singleton
+            def first_method; end
+          end
+        RUBY
+      end
+
+      let(:file1_def1_res) do
+        {
+          file: @file_paths[0],
+          line: 7,
+          path: "#{@file_paths[0]}:7"
+        }
+      end
+    end
+  end
+
   shared_examples 'all specs' do |s|
     let(:subject) { eval(s) } # rubocop:disable Security/Eval
     context 'with files' do
@@ -225,4 +281,6 @@ describe Where do
 
   include_examples 'all specs', 'MyClass'
   include_examples 'all specs', 'MyClass.new'
+  include_examples 'singleton specs', 'MySingletonClass'
+  include_examples 'singleton specs', 'MySingletonClass.instance'
 end
