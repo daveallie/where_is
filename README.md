@@ -50,6 +50,19 @@ Where.are(IRB)
 # ]
 
 
+# Where.ignore sets a global array of ignored regexes or partial strings. 
+# Any item with a `file` key that matches the ignore will be omitted.
+Where.ignore = [/inspector/]
+# => [/inspector/]
+  
+Where.are(IRB)
+# => [
+#   {:file=>"/Users/david/.rvm/rubies/ruby-2.3.1/lib/ruby/2.3.0/irb/workspace.rb", :line=>112, :path=>"/Users/david/.rvm/rubies/ruby-2.3.1/lib/ruby/2.3.0/irb/workspace.rb:112"}, 
+#   {:file=>"(eval)", :line=>2, :path=>"(eval):2"}, 
+#   {:file=>"/Users/david/.rvm/rubies/ruby-2.3.1/lib/ruby/2.3.0/irb.rb", :line=>350, :path=>"/Users/david/.rvm/rubies/ruby-2.3.1/lib/ruby/2.3.0/irb.rb:350"}, 
+#   {:file=>"/Users/david/.rvm/rubies/ruby-2.3.1/lib/ruby/2.3.0/irb/init.rb", :line=>16, :path=>"/Users/david/.rvm/rubies/ruby-2.3.1/lib/ruby/2.3.0/irb/init.rb:16"}
+# ]
+
 Where.is(String, :unknown_method)
 # NameError: undefined method `unknown_method' for class `#<Class:String>'
 ```
