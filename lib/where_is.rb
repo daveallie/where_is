@@ -2,6 +2,8 @@ require 'where_is/version'
 
 module Where
   class << self
+    attr_accessor :ignore
+
     def is(klass, method = nil)
       are(klass, method)[0]
     end
@@ -66,7 +68,7 @@ module Where
       if source_locations.empty?
         raise NameError, "#{ensured_class} has no methods" if methods.empty?
         raise NameError, "#{ensured_class} only has built-in methods " \
-                             "(#{methods.size} in total)"
+                         "(#{methods.size} in total)"
       end
 
       source_locations
@@ -100,7 +102,18 @@ module Where
         { count: count, data: build_location_hash(file, line) }
       end
 
-      file_groups.sort_by { |fc| fc[:count] }.map { |fc| fc[:data] }
+      locations = file_groups.sort_by { |fc| fc[:count] }.map { |fc| fc[:data] }
+      process_ignores(locations)
+    end
+
+    def process_ignores(locations)
+      [@ignore].flatten.compact.each do |ign|
+        locations.reject! do |location|
+          location[:file].match(ign)
+        end
+      end
+
+      locations
     end
 
     def are_via_extractor(extractor, klass, method_name)
