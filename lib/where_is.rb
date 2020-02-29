@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'where_is/extractors'
 require 'where_is/version'
 
@@ -68,6 +70,7 @@ module Where
 
       if source_locations.empty?
         raise NameError, "#{ensured_class} has no methods" if methods.empty?
+
         raise NameError, "#{ensured_class} only has built-in methods " \
                          "(#{methods.size} in total)"
       end

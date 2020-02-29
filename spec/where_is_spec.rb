@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Where do
@@ -8,9 +10,9 @@ describe Where do
   context 'with method defined in C' do
     let(:split_location) do
       {
-        file: 'String#split',
+        file: 'String#split(*)',
         line: nil,
-        path: 'String#split'
+        path: 'String#split(*)'
       }
     end
 
